@@ -70,19 +70,23 @@ defmodule PhxToolsWeb.ContextGeneratorLive do
     """
   end
 
-  def handle_params(_params, _url, socket) do
+  def handle_params(params, _url, socket) do
     type_select_options =
       ~w(string integer float decimal boolean map array references text date time time_usec naive_datetime naive_datetime_usec utc_datetime utc_datetime_usec uuid binary enum datetime)
 
-    attrs = %{
-      context_name: "Blog",
-      model_name: "Post",
-      table_name: "posts",
-      fields: [
-        %{name: "name", type: "string"},
-        %{name: "status", type: "enum", enum_options: [%{name: "draft"}, %{name: "published"}, %{name: "deleted"}]},
-      ]
-    }
+    attrs = if params["phx_contex"] do
+      params["phx_contex"]
+    else
+      %{
+        context_name: "Blog",
+        model_name: "Post",
+        table_name: "posts",
+        fields: [
+          %{name: "name", type: "string"},
+          %{name: "status", type: "enum", enum_options: [%{name: "draft"}, %{name: "published"}, %{name: "deleted"}]},
+        ]
+      }
+    end
 
     {:noreply,
      socket
@@ -91,7 +95,8 @@ defmodule PhxToolsWeb.ContextGeneratorLive do
   end
 
   def handle_event("update_form", %{"phx_contex" => attrs}, socket) do
-    {:noreply, update_form_assigns(socket, attrs)}
+    params = %{"phx_contex" => attrs}
+    {:noreply, push_patch(socket, to: ~p"/?#{params}")}
   end
 
   def update_form_assigns(socket, attrs) do
