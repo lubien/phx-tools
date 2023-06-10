@@ -17,7 +17,8 @@ defmodule PhxToolsWeb.Router do
   scope "/", PhxToolsWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", ContextGeneratorLive, :home
+    # get "/", PageController, :home
   end
 
   # Other scopes may use custom stacks.
