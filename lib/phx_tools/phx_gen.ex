@@ -21,9 +21,49 @@ defmodule PhxTools.PhxGen do
     |> Enum.join(" ")
   end
 
-  defp generate_field(%PhxField{name: name, type: type}) do
-    "#{name}:#{type}"
+  defp generate_field(%PhxField{name: name} = field) do
+    "#{name}#{do_generate_field(field)}"
   end
+
+  defp do_generate_field(%PhxField{array: true} = field) do
+    recursive_field =
+      field
+      |> Map.put(:array, false)
+      |> Map.put(:redact, false)
+      |> Map.put(:unique, false)
+      |> do_generate_field()
+
+    ":array#{recursive_field}#{add_redact(field)}#{add_unique(field)}"
+  end
+
+  defp do_generate_field(%PhxField{type: "enum", enum_options: enum_options}) do
+    options =
+      enum_options
+      |> Enum.map(& &1.name)
+      |> Enum.join(":")
+
+    # TODO: redact, unique here?
+    ":enum:#{options}"
+  end
+
+  defp do_generate_field(%PhxField{type: "references", referenced_table: referenced_table} = field) do
+    # TODO: redact here?
+    ":references:#{referenced_table}#{add_unique(field)}"
+  end
+
+  defp do_generate_field(%PhxField{type: "string"} = field) do
+    "#{add_unique(field)}#{add_redact(field)}"
+  end
+
+  defp do_generate_field(%PhxField{type: type} = field) do
+    ":#{type}#{add_unique(field)}#{add_redact(field)}"
+  end
+
+  defp add_redact(%PhxField{redact: true}), do: ":redact"
+  defp add_redact(%PhxField{redact: false}), do: ""
+
+  defp add_unique(%PhxField{unique: true}), do: ":unique"
+  defp add_unique(%PhxField{unique: false}), do: ""
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking phx_contex changes.
