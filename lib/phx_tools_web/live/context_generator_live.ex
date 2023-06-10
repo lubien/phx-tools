@@ -74,19 +74,24 @@ defmodule PhxToolsWeb.ContextGeneratorLive do
     type_select_options =
       ~w(string integer float decimal boolean map array references text date time time_usec naive_datetime naive_datetime_usec utc_datetime utc_datetime_usec uuid binary enum datetime)
 
-    attrs = if params["phx_contex"] do
-      params["phx_contex"]
-    else
-      %{
-        context_name: "Blog",
-        model_name: "Post",
-        table_name: "posts",
-        fields: [
-          %{name: "name", type: "string"},
-          %{name: "status", type: "enum", enum_options: [%{name: "draft"}, %{name: "published"}, %{name: "deleted"}]},
-        ]
-      }
-    end
+    attrs =
+      if params["phx_contex"] do
+        params["phx_contex"]
+      else
+        %{
+          context_name: "Blog",
+          model_name: "Post",
+          table_name: "posts",
+          fields: [
+            %{name: "name", type: "string"},
+            %{
+              name: "status",
+              type: "enum",
+              enum_options: [%{name: "draft"}, %{name: "published"}, %{name: "deleted"}]
+            }
+          ]
+        }
+      end
 
     {:noreply,
      socket
