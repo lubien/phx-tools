@@ -8,6 +8,8 @@ defmodule PhxTools.PhxGen.PhxContex do
     field :model_name, :string
     field :table_name, :string
 
+    embeds_many :fields, PhxTools.PhxGen.PhxField
+
     timestamps()
   end
 
@@ -15,6 +17,7 @@ defmodule PhxTools.PhxGen.PhxContex do
   def changeset(phx_contex, attrs) do
     phx_contex
     |> cast(attrs, [:context_name, :model_name, :table_name])
+    |> cast_embed(:fields, with: &PhxTools.PhxGen.PhxField.changeset/2)
     |> validate_required([:context_name, :model_name, :table_name])
   end
 end
