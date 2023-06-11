@@ -7,64 +7,132 @@ defmodule PhxToolsWeb.ContextGeneratorLive do
   def render(assigns) do
     ~H"""
     <div>
-      <.form for={@form} phx-change="update_form">
-        <.input label="Context name" field={@form[:context_name]} />
-        <.input label="Model name" field={@form[:model_name]} />
-        <.input label="Table name" field={@form[:table_name]} />
+      <textarea class="w-full mt-12 bg-[#dedede] dark:disabled:bg-gray-600 dark:text-white border-none" disabled rows="3"><%= @generated_command %></textarea>
 
-        <div class="overflow-hidden rounded-md bg-white shadow mt-4">
-          <ul role="list" class="divide-y divide-gray-200">
+      <.form for={@form} phx-change="update_form">
+        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div class="sm:col-span-2">
+            <.input label="Context name" field={@form[:context_name]} />
+          </div>
+          <div class="sm:col-span-2">
+            <.input label="Model name" field={@form[:model_name]} />
+          </div>
+          <div class="sm:col-span-2">
+            <.input label="Table name" field={@form[:table_name]} />
+          </div>
+        </div>
+
+        <div class="overflow-hidden rounded-md shadow mt-4">
+          <ul role="list" class="">
             <.inputs_for :let={ff} field={@form[:fields]}>
-              <li class="px-6 py-4">
+              <li class="py-4">
+                <.divider_with_title_and_button>
+                  <:title>Field</:title>
+                  <:button>
+                    <button type="button" phx-click={JS.dispatch("click", to: "#remove-field-#{ff.id}")} class="inline-flex items-center gap-x-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                      <.icon name="hero-x-mark-solid" />
+                      <span>Remove</span>
+                    </button>
+                    <input id={"remove-field-#{ff.id}"} type="checkbox" name="phx_contex[fields_drop][]" value={ff.index} class="hidden" />
+                  </:button>
+                </.divider_with_title_and_button>
+
                 <input type="hidden" name="phx_contex[fields_sort][]" value={ff.index} />
-                <.input type="text" field={ff[:name]} label="Field name" />
-                <.input type="select" field={ff[:type]} options={@type_select_options} label="Field type" />
-                <%= if ff[:type].value == "references" do %>
-                  <.input type="text" field={ff[:referenced_table]} label="Referenced table" />
-                <% end %>
+                <div class={"mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-#{if ff[:type].value == "references", do: "3", else: 2}"}>
+                  <div class="sm:col-span-auto">
+                    <.input type="text" field={ff[:name]} label="Field name" />
+                  </div>
+                  <div class="sm:col-span-auto">
+                    <.input type="select" field={ff[:type]} options={@type_select_options} value={ff[:type].value || "string"} label="Field type" />
+                  </div>
+                  <%= if ff[:type].value == "references" do %>
+                    <div class="sm:col-span-auto">
+                      <.input type="text" field={ff[:referenced_table]} label="Referenced table" />
+                    </div>
+                  <% end %>
+                </div>
 
                 <%= if ff[:type].value == "enum" do %>
                   <.inputs_for :let={eof} field={ff[:enum_options]}>
                     <li class="ml-12 px-6 py-4">
-                      <input type="hidden" name={"phx_contex[fields][#{ff.index}][enum_options_sort][]"} value={eof.index} />
-                      <.input type="text" field={eof[:name]} label="Enum option" />
+                      <.divider_with_title_and_button>
+                        <:title>Enum option</:title>
+                        <:button>
+                          <button type="button" phx-click={JS.dispatch("click", to: "#remove-enum-option-#{eof.id}")} class="inline-flex items-center gap-x-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                            <.icon name="hero-x-mark-solid" />
+                            <span>Remove</span>
+                          </button>
+                          <input id={"remove-enum-option-#{eof.id}"} type="checkbox" name={"phx_contex[fields][#{ff.index}][enum_options_drop][]"} value={eof.index} class="hidden" />
+                        </:button>
+                      </.divider_with_title_and_button>
 
-                      <label>
-                        <input type="checkbox" name={"phx_contex[fields][#{ff.index}][enum_options_drop][]"} value={eof.index} class="hidden" />
-                        <.icon name="hero-x-mark" class="w-6 h-6 relative top-2" />
-                      </label>
+                      <input type="hidden" name={"phx_contex[fields][#{ff.index}][enum_options_sort][]"} value={eof.index} />
+                      <.input type="text" field={eof[:name]} />
                     </li>
                   </.inputs_for>
 
-                  <label class="block cursor-pointer my-2">
-                    <input type="checkbox" name={"phx_contex[fields][#{ff.index}][enum_options_sort][]"} class="hidden" />
-                    Add enum option
-                  </label>
+                  <div class="ml-12 px-6 py-4">
+                    <.divider_with_button>
+                      <:button>
+                        <button type="button" phx-click={JS.dispatch("click", to: "#add-enum-option-#{ff.id}")} class="inline-flex items-center gap-x-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                          <.icon name="hero-x-plus-solid" />
+                          Add enum option
+                        </button>
+                        <input id={"add-enum-option-#{ff.id}"} type="checkbox" name={"phx_contex[fields][#{ff.index}][enum_options_sort][]"} class="hidden" />
+                      </:button>
+                    </.divider_with_button>
+                  </div>
 
                   <input type="hidden" name={"phx_contex[fields][#{ff.index}][enum_options_drop][]"} />
                 <% end %>
 
-                <.input type="checkbox" field={ff[:array]} label="Array?" />
-                <.input type="checkbox" field={ff[:unique]} label="Unique?" />
-                <.input type="checkbox" field={ff[:redact]} label="Redact?" />
-
-                <label>
-                  <input type="checkbox" name="phx_contex[fields_drop][]" value={ff.index} class="hidden" />
-                  <.icon name="hero-x-mark" class="w-6 h-6 relative top-2" /> delete field
-                </label>
+                <div class="mt-6 space-y-6">
+                  <div class="relative flex gap-x-3">
+                    <div class="flex h-6 items-center">
+                      <.input type="checkbox" field={ff[:unique]} />
+                    </div>
+                    <div class="text-sm leading-6">
+                      <.label for={ff[:unique].id}>Unique field?</.label>
+                      <p class="text-gray-400">Rows cannot have duplicated values of this field</p>
+                    </div>
+                  </div>
+                  <div class="relative flex gap-x-3">
+                    <div class="flex h-6 items-center">
+                      <.input type="checkbox" field={ff[:redact]} />
+                    </div>
+                    <div class="text-sm leading-6">
+                      <.label for={ff[:redact].id}>Redact field?</.label>
+                      <p class="text-gray-400">Hide this field from inspection (useful for passwords and tokens)</p>
+                    </div>
+                  </div>
+                  <%= if !Enum.member?(["array", "references"], ff[:type].value) do %>
+                    <div class="relative flex gap-x-3">
+                      <div class="flex h-6 items-center">
+                        <.input type="checkbox" field={ff[:array]} />
+                      </div>
+                      <div class="text-sm leading-6">
+                        <.label for={ff[:array].id}>Array field?</.label>
+                        <p class="text-gray-400">Store this field as a list of `Field type` inside your database</p>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
               </li>
             </.inputs_for>
           </ul>
         </div>
 
-        <label class="block cursor-pointer my-2">
-          <input type="checkbox" name={"phx_contex[fields_sort][]"} class="hidden" />
-          Add field
-        </label>
+        <.divider_with_button>
+          <:button>
+            <button type="button" phx-click={JS.dispatch("click", to: "#add-field")} class="inline-flex items-center gap-x-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+              <.icon name="hero-x-plus-solid" />
+              Add field
+            </button>
+            <input id="add-field" type="checkbox" name={"phx_contex[fields_sort][]"} class="hidden" />
+          </:button>
+        </.divider_with_button>
 
         <input type="hidden" name="phx_contex[fields_drop][]" />
-
-        <textarea class="w-full mt-12 bg-[#dedede] border-none" disabled rows="3"><%= @generated_command %></textarea>
       </.form>
     </div>
     """
@@ -73,6 +141,7 @@ defmodule PhxToolsWeb.ContextGeneratorLive do
   def handle_params(params, _url, socket) do
     type_select_options =
       ~w(string integer float decimal boolean map array references text date time time_usec naive_datetime naive_datetime_usec utc_datetime utc_datetime_usec uuid binary enum datetime)
+      |> Enum.sort()
 
     attrs =
       if params["phx_contex"] do

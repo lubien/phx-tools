@@ -297,7 +297,7 @@ defmodule PhxToolsWeb.CoreComponents do
           name={@name}
           value="true"
           checked={@checked}
-          class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
+          class="rounded border-zinc-300 text-zinc-900 focus:ring-0 dark:border-white/10 dark:bg-white/5 dark:text-indigo-600 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-900"
           {@rest}
         />
         <%= @label %>
@@ -314,7 +314,7 @@ defmodule PhxToolsWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm"
+        class="mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm dark:bg-white/5 dark:text-white dark:ring-1 dark:ring-inset dark:ring-white/10 dark:border-0 dark:focus:ring-2 dark:focus:ring-inset"
         multiple={@multiple}
         {@rest}
       >
@@ -357,8 +357,8 @@ defmodule PhxToolsWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6 dark:bg-white/5 dark:text-white dark:ring-white/10",
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400 dark:phx-no-feedback:border-[#6b7280] dark:phx-no-feedback:focus:ring-indigo-500 dark:ring-1 dark:ring-inset dark:ring-white/10 dark:border-0 dark:focus:ring-2 dark:focus:ring-inset",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
@@ -377,7 +377,7 @@ defmodule PhxToolsWeb.CoreComponents do
 
   def label(assigns) do
     ~H"""
-    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800">
+    <label for={@for} class="block text-sm font-semibold leading-6 text-zinc-800 dark:text-white">
       <%= render_slot(@inner_block) %>
     </label>
     """
@@ -545,6 +545,33 @@ defmodule PhxToolsWeb.CoreComponents do
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" />
         <%= render_slot(@inner_block) %>
       </.link>
+    </div>
+    """
+  end
+
+  def divider_with_title_and_button(assigns) do
+    ~H"""
+    <div class="relative">
+      <div class="absolute inset-0 flex items-center" aria-hidden="true">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
+      <div class="relative flex items-center justify-between mb-4">
+        <span class="light:bg-white dark:bg-slate-900 pr-3 text-base font-semibold leading-6 text-gray-900 dark:text-white"><%= render_slot(@title) %></span>
+        <%= render_slot(@button) %>
+      </div>
+    </div>
+    """
+  end
+
+  def divider_with_button(assigns) do
+    ~H"""
+    <div class="relative">
+      <div class="absolute inset-0 flex items-center" aria-hidden="true">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
+      <div class="relative flex justify-center">
+        <%= render_slot(@button) %>
+      </div>
     </div>
     """
   end
