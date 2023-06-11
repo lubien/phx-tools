@@ -75,7 +75,7 @@ defmodule PhxToolsWeb.ContextGeneratorLive do
                     <.divider_with_button>
                       <:button>
                         <button type="button" phx-click={JS.dispatch("click", to: "#add-enum-option-#{ff.id}")} class="inline-flex items-center gap-x-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                          <.icon name="hero-x-plus-solid" />
+                          <.icon name="hero-plus" />
                           Add enum option
                         </button>
                         <input id={"add-enum-option-#{ff.id}"} type="checkbox" name={"phx_contex[fields][#{ff.index}][enum_options_sort][]"} class="hidden" />
@@ -125,7 +125,7 @@ defmodule PhxToolsWeb.ContextGeneratorLive do
         <.divider_with_button>
           <:button>
             <button type="button" phx-click={JS.dispatch("click", to: "#add-field")} class="inline-flex items-center gap-x-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-              <.icon name="hero-x-plus-solid" />
+              <.icon name="hero-plus" />
               Add field
             </button>
             <input id="add-field" type="checkbox" name={"phx_contex[fields_sort][]"} class="hidden" />
